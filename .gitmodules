@@ -1,0 +1,3 @@
+[submodule "awesome-cheatsheets"]
+	path = awesome-cheatsheets
+	url = https://github.com/skywind3000/awesome-cheatsheets.git
