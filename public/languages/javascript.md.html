@@ -1,0 +1,1167 @@
+
+    <html lang="zh-cn">
+    <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <link href="../css/dark.css" rel="stylesheet">
+    </head>
+    <body>
+    <h1 id="javascript">JavaScript速查表</h1>
+<ul>
+<li>
+<p>本手册绝大部分内容是从Airbnb JavaScript Style Guide精简整理，将开发者们都明确的操作去掉，目的为了就是更快的速查。
+  此处为<a href="https://github.com/airbnb/javascript">源地址</a>。</p>
+</li>
+<li>
+<p>译制：<a href="https://github.com/HaleNing">HaleNing</a></p>
+</li>
+</ul>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#基础知识">基础知识</a><ul>
+<li><a href="#类型">类型</a></li>
+<li><a href="#引用">引用</a></li>
+<li><a href="#对象">对象</a></li>
+<li><a href="#数组">数组</a></li>
+<li><a href="#解构">解构</a></li>
+<li><a href="#字符串">字符串</a></li>
+<li><a href="#变量">变量</a></li>
+<li><a href="#属性">属性</a></li>
+<li><a href="#测试">测试</a></li>
+</ul>
+</li>
+<li><a href="#公共约束">公共约束</a><ul>
+<li><a href="#注释">注释</a></li>
+<li><a href="#分号">分号</a></li>
+<li><a href="#命名规范">命名规范</a></li>
+<li><a href="#标准库">标准库</a></li>
+</ul>
+</li>
+<li><a href="#类与函数">类与函数</a><ul>
+<li><a href="#函数">函数</a></li>
+<li><a href="#箭头函数">箭头函数</a></li>
+<li><a href="#类与构造函数">类与构造函数</a></li>
+<li><a href="#模块">模块</a></li>
+<li><a href="#迭代器与生成器">迭代器与生成器</a></li>
+<li><a href="#提升">提升</a></li>
+<li><a href="#比较运算符与相等">比较运算符与相等</a></li>
+<li><a href="#事件">事件</a></li>
+<li><a href="#类型转换与强制转换">类型转换与强制转换</a></li>
+</ul>
+</li>
+<li><a href="#推荐资源">推荐资源</a></li>
+</ul>
+<h2 id="_2">基础知识</h2>
+<h3 id="_3">类型</h3>
+<ul>
+<li>基本类型
+  <strong>最新的 ECMAScript 标准定义了 8 种数据类型,分别是</strong></li>
+<li><code>string</code></li>
+<li><code>number</code></li>
+<li><code>bigint</code></li>
+<li><code>boolean</code></li>
+<li><code>null</code></li>
+<li><code>undefined</code></li>
+<li><code>symbol</code> (ECMAScript 2016新增)<blockquote>
+<p>所有基本类型的值都是不可改变的。但需要注意的是，基本类型本身和一个赋值为基本类型的变量的区别。变量会被赋予一个新值，而原值不能像数组、对象以及函数那样被改变。</p>
+</blockquote>
+</li>
+<li>引用类型</li>
+<li><code>Object</code>（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象-Date，数学函数-Math，函数对象-Function）</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="nx">使用</span> <span class="ow">typeof</span> <span class="nx">运算符检查</span><span class="err">：</span>
+
+<span class="kc">undefined</span><span class="err">：</span><span class="ow">typeof</span> <span class="nx">instance</span> <span class="o">===</span> <span class="s2">&quot;undefined&quot;</span>
+<span class="nb">Boolean</span><span class="err">：</span><span class="ow">typeof</span> <span class="nx">instance</span> <span class="o">===</span> <span class="s2">&quot;boolean&quot;</span>
+<span class="nb">Number</span><span class="err">：</span><span class="ow">typeof</span> <span class="nx">instance</span> <span class="o">===</span> <span class="s2">&quot;number&quot;</span>
+<span class="nb">String</span><span class="err">：</span><span class="ow">typeof</span> <span class="nx">instance</span> <span class="o">===</span> <span class="s2">&quot;string</span>
+<span class="s2">BigInt：typeof instance === &quot;</span><span class="nx">bigint</span><span class="s2">&quot;</span>
+<span class="s2">Symbol ：typeof instance === &quot;</span><span class="nx">symbol</span><span class="s2">&quot;</span>
+<span class="s2">null：typeof instance === &quot;</span><span class="nx">object</span><span class="s2">&quot;。</span>
+<span class="s2">Object：typeof instance === &quot;</span><span class="nx">object</span><span class="err">&quot;</span>
+</code></pre></div>
+
+<h3 id="_4">引用</h3>
+<p>推荐常量赋值都使用<code>const</code>, 值可能会发生改变的变量赋值都使用 <code>let</code>。</p>
+<blockquote>
+<p>为什么？<code>let</code>   <code>const</code> 都是块级作用域，而 <code>var</code>是函数级作用域</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">count</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// good, use the let and const </span>
+<span class="kd">let</span> <span class="nx">count</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">pi</span> <span class="o">=</span><span class="mf">3.14</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">count</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_5">对象</h3>
+<ul>
+<li>使用字面语法创建对象：</li>
+</ul>
+<p>```javascript
+  // bad
+  const item = new Object();</p>
+<p>// good
+  const item = {};
+  ```</p>
+<ul>
+<li>在创建具有动态属性名称的对象时使用属性名称:</li>
+</ul>
+<p>```javascript</p>
+<p>function getKey(k) {
+    return <code>a key named ${k}</code>;
+  }</p>
+<p>// bad
+  const obj = {
+    id: 5,
+    name: 'San Francisco',
+  };
+  obj[getKey('enabled')] = true;</p>
+<p>// good
+  const obj = {
+    id: 5,
+    name: 'San Francisco',
+    [getKey('enabled')]: true,
+  };
+  ```</p>
+<ul>
+<li>属性值简写，并且推荐将缩写 写在前面 :</li>
+</ul>
+<p>```javascript
+  const lukeSkywalker = 'Luke Skywalker';
+  //常量名就是你想设置的属性名
+  // bad
+  const obj = {
+    lukeSkywalker: lukeSkywalker,
+  };</p>
+<p>// good
+  const obj = {
+    lukeSkywalker,
+  };</p>
+<p>const anakinSkywalker = 'Anakin Skywalker';
+  const lukeSkywalker = 'Luke Skywalker';</p>
+<p>// good
+  const obj = {
+    lukeSkywalker,
+    anakinSkywalker,
+    episodeOne: 1,
+    twoJediWalkIntoACantina: 2,
+    episodeThree: 3,
+    mayTheFourth: 4,
+  };
+  ```</p>
+<ul>
+<li>不要直接调用 <code>Object.prototype</code>上的方法，如 <code>hasOwnProperty</code>、<code>propertyIsEnumerable</code>、<code>isPrototypeOf</code></li>
+</ul>
+<blockquote>
+<p>为什么？在一些有问题的对象上，这些方法可能会被屏蔽掉，如：<code>{ hasOwnProperty: false }</code> 或空对象 <code>Object.create(null)</code></p>
+</blockquote>
+<p>```javascript
+  // bad
+  console.log(object.hasOwnProperty(key));</p>
+<p>// good
+  console.log(Object.prototype.hasOwnProperty.call(object, key));</p>
+<p>// best
+  const has = Object.prototype.hasOwnProperty; 
+  console.log(has.call(object, key));
+  /<em> or </em>/
+  import has from 'has'; // https://www.npmjs.com/package/has
+  console.log(has(object, key));
+  ```</p>
+<ul>
+<li>对象拷贝时，推荐使用<code>...</code>运算符来代替<code>Object.assign</code>, 获取大对象的多个属性时，也推荐使用<code>...</code>运算符</li>
+</ul>
+<p>```javascript
+  // very bad, 因为line2的操作更改了original
+  const original = { a: 1, b: 2 };
+  const copy = Object.assign(original, { c: 3 }); 
+  // 将不需要的属性删除了
+  delete copy.a; </p>
+<p>// bad
+  const original = { a: 1, b: 2 };
+  const copy = Object.assign({}, original, { c: 3 }); // copy =&gt; { a: 1, b: 2, c: 3 }</p>
+<p>// good 使用 es6 扩展运算符 ...
+  const original = { a: 1, b: 2 };
+  // 浅拷贝
+  const copy = { ...original, c: 3 }; // copy =&gt; { a: 1, b: 2, c: 3 }</p>
+<p>// rest 解构运算符
+  const { a, ...noA } = copy; // noA =&gt; { b: 2, c: 3 }
+  ```</p>
+<h3 id="_6">数组</h3>
+<ul>
+<li>用扩展运算符做数组浅拷贝，类似上面的对象浅拷贝：</li>
+</ul>
+<p>```javascript
+  // bad
+  const len = items.length;
+  const itemsCopy = [];
+  let i;</p>
+<p>for (i = 0; i &lt; len; i += 1) {
+    itemsCopy[i] = items[i];
+  }</p>
+<p>// good
+  const itemsCopy = [...items];
+  ```</p>
+<ul>
+<li>用 <code>...</code> 运算符而不是 <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/from"><code>Array.from</code></a> 来将一个可迭代的对象转换成数组:</li>
+</ul>
+<p>```javascript
+  const foo = document.querySelectorAll('.foo');</p>
+<p>// good
+  const nodes = Array.from(foo);</p>
+<p>// best
+  const nodes = [...foo];
+  ```</p>
+<ul>
+<li>使用 <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/from"><code>Array.from</code></a> 而不是 <code>...</code> 运算符去做 map 遍历。 因为这样可以避免创建一个临时数组：</li>
+</ul>
+<p>```javascript
+  // bad
+  const baz = [...foo].map(bar);</p>
+<p>// good
+  const baz = Array.from(foo, bar);
+  ```</p>
+<ul>
+<li>如果一个数组有很多行，在数组的 <code>[</code> 后和 <code>]</code> 前断行 :</li>
+</ul>
+<p>```javascript</p>
+<p>// good
+  const arr = [[0, 1], [2, 3], [4, 5]];</p>
+<p>const objectInArray = [
+    {
+      id: 1,
+    },
+    {
+      id: 2,
+    },
+  ];</p>
+<p>const numberInArray = [
+    1,
+    2,
+  ];
+  ```</p>
+<h3 id="_7">解构</h3>
+<ul>
+<li>用对象的解构赋值来获取和使用对象某个或多个属性值:</li>
+</ul>
+<p>```javascript
+  // bad
+  function getFullName(user) {
+    const firstName = user.firstName;
+    const lastName = user.lastName;</p>
+<div class="codehilite"><pre><span></span><code>return `<span class="cp">${</span><span class="n">firstName</span><span class="cp">}</span> <span class="cp">${</span><span class="n">lastName</span><span class="cp">}</span>`;
+</code></pre></div>
+
+<p>}</p>
+<p>// good
+  function getFullName(user) {
+    const { firstName, lastName } = user;
+    return <code>${firstName} ${lastName}</code>;
+  }</p>
+<p>// best
+  function getFullName({ firstName, lastName }) {
+    return <code>${firstName} ${lastName}</code>;
+  }
+  ```</p>
+<ul>
+<li>数组解构:</li>
+</ul>
+<p>```javascript
+  const arr = [1, 2, 3, 4];</p>
+<p>// bad
+  const first = arr[0];
+  const second = arr[1];
+  const four = arr[3];</p>
+<p>// good
+  const [first, second, _,four] = arr;
+  ```</p>
+<ul>
+<li>多个返回值用对象的解构，而不是数组解构:</li>
+</ul>
+<p>```javascript
+  // bad
+  function processInput(input) {
+    return [left, right, top, bottom];
+  }</p>
+<p>// 数组解构，必须明确前后顺序
+  const [left, __, top] = processInput(input);</p>
+<p>// good
+  function processInput(input) {
+    return { left, right, top, bottom };
+  }
+  // 只需要关注值，而不用关注顺序
+  const { left, top } = processInput(input);
+  ```</p>
+<h3 id="_8">字符串</h3>
+<ul>
+<li>当需要动态生成字符串时，使用模板字符串而不是字符串拼接：</li>
+</ul>
+<p>```javascript
+  // bad
+  function sayHi(name) {
+    return 'How are you, ' + name + '?';
+  }</p>
+<p>// bad
+  function sayHi(name) {
+    return ['How are you, ', name, '?'].join();
+  }</p>
+<p>// good 可读性比上面更强
+  function sayHi(name) {
+    return <code>How are you, ${name}?</code>;
+  }
+  ```</p>
+<ul>
+<li>永远不要使用 <code>eval()</code>，该方法有太多漏洞。</li>
+</ul>
+<h3 id="_9">变量</h3>
+<ul>
+<li>不要使用链式变量赋值</li>
+</ul>
+<blockquote>
+<p>因为会产生隐式的全局变量</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="p">(</span><span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// JavaScript interprets this as</span>
+  <span class="c1">// let a = ( b = ( c = 1 ) );</span>
+  <span class="c1">// The let keyword only applies to variable a; variables b and c become</span>
+  <span class="c1">// global variables.</span>
+  <span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="nx">b</span> <span class="o">=</span> <span class="nx">c</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+<span class="p">}());</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="c1">// throws ReferenceError</span>
+<span class="c1">// 在块的外层也访问到了，代表这是一个全局变量。</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span> <span class="c1">// 1 </span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span> <span class="c1">// 1</span>
+
+<span class="c1">// good</span>
+<span class="p">(</span><span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">b</span> <span class="o">=</span> <span class="nx">a</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">a</span><span class="p">;</span>
+<span class="p">}());</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="c1">// throws ReferenceError</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span> <span class="c1">// throws ReferenceError</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span> <span class="c1">// throws ReferenceError</span>
+
+<span class="c1">// the same applies for `const`</span>
+</code></pre></div>
+
+<ul>
+<li>不要使用一元自增自减运算符（<code>++</code>， <code>--</code>）</li>
+</ul>
+<blockquote>
+<p>根据 eslint 文档，一元增量和减量语句受到自动分号插入的影响，并且可能会导致应用程序中的值递增或递减的静默错误。 使用 <code>num + = 1</code> 而不是 <code>num ++</code> 或 <code>num ++</code> 语句也是含义清晰的。</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code>  <span class="c1">// bad</span>
+
+  <span class="kd">const</span> <span class="nx">array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="mf">3</span><span class="p">];</span>
+  <span class="kd">let</span> <span class="nx">num</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+  <span class="nx">num</span><span class="o">++</span><span class="p">;</span>
+  <span class="o">--</span><span class="nx">num</span><span class="p">;</span>
+
+  <span class="kd">let</span> <span class="nx">sum</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">truthyCount</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">array</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+    <span class="nx">sum</span> <span class="o">+=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">truthyCount</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// good</span>
+
+  <span class="kd">const</span> <span class="nx">array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="mf">3</span><span class="p">];</span>
+  <span class="kd">let</span> <span class="nx">num</span> <span class="o">=</span> <span class="mf">1</span><span class="p">;</span>
+  <span class="nx">num</span> <span class="o">+=</span> <span class="mf">1</span><span class="p">;</span>
+  <span class="nx">num</span> <span class="o">-=</span> <span class="mf">1</span><span class="p">;</span>
+
+  <span class="kd">const</span> <span class="nx">sum</span> <span class="o">=</span> <span class="nx">array</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="p">,</span> <span class="mf">0</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">truthyCount</span> <span class="o">=</span> <span class="nx">array</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nb">Boolean</span><span class="p">).</span><span class="nx">length</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="_10">属性</h3>
+<ul>
+<li>访问属性时使用点符号</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">jedi</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">age</span><span class="o">:</span> <span class="mf">28</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">isJedi</span> <span class="o">=</span> <span class="nx">luke</span><span class="p">[</span><span class="s1">&#39;jedi&#39;</span><span class="p">];</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">isJedi</span> <span class="o">=</span> <span class="nx">luke</span><span class="p">.</span><span class="nx">jedi</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li>根据表达式访问属性时使用<code>[]</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">jedi</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">age</span><span class="o">:</span> <span class="mf">28</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="kd">function</span> <span class="nx">getProp</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">luke</span><span class="p">[</span><span class="nx">prop</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">isJedi</span> <span class="o">=</span> <span class="nx">getProp</span><span class="p">(</span><span class="s1">&#39;je&#39;</span><span class="o">+</span><span class="s1">&#39;di&#39;</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="_11">测试</h3>
+<ul>
+<li>无论用哪个测试框架，都需要写测试。</li>
+<li>尽量去写很多小而美的函数，减少突变的发生</li>
+<li>小心 stub 和 mock —— 这会让你的测试变得容易出现问题。</li>
+<li>100% 测试覆盖率是我们努力的目标，即便实际上很少达到。</li>
+<li>每当你修了一个 bug， 都要尽量写一个回归测试。 如果一个 bug 修复了，没有回归测试，很可能以后会再次出问题。</li>
+</ul>
+<h2 id="_12">公共约束</h2>
+<h3 id="_13">注释</h3>
+<ul>
+<li>多行注释用 <code>/** ... */</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="c1">// make() returns a new element</span>
+<span class="c1">// based on the passed in tag name</span>
+<span class="c1">//</span>
+<span class="c1">// @param {String} tag</span>
+<span class="c1">// @return {Element} element</span>
+<span class="kd">function</span> <span class="nx">make</span><span class="p">(</span><span class="nx">tag</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// ...</span>
+
+  <span class="k">return</span> <span class="nx">element</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// good</span>
+<span class="cm">/**</span>
+<span class="cm"> * make() returns a new element</span>
+<span class="cm"> * based on the passed-in tag name</span>
+<span class="cm"> */</span>
+<span class="kd">function</span> <span class="nx">make</span><span class="p">(</span><span class="nx">tag</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// ...</span>
+
+  <span class="k">return</span> <span class="nx">element</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>单行注释用 <code>//</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">active</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>  <span class="c1">// is current tab</span>
+
+<span class="c1">// good</span>
+<span class="c1">// is current tab</span>
+<span class="kd">const</span> <span class="nx">active</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">function</span> <span class="nx">getType</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;fetching type...&#39;</span><span class="p">);</span>
+  <span class="c1">// set the default type to &#39;no type&#39;</span>
+  <span class="kd">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_type</span> <span class="o">||</span> <span class="s1">&#39;no type&#39;</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nx">type</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// good</span>
+<span class="kd">function</span> <span class="nx">getType</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;fetching type...&#39;</span><span class="p">);</span>
+
+  <span class="c1">// set the default type to &#39;no type&#39;</span>
+  <span class="kd">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_type</span> <span class="o">||</span> <span class="s1">&#39;no type&#39;</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nx">type</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// also good</span>
+<span class="kd">function</span> <span class="nx">getType</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// set the default type to &#39;no type&#39;</span>
+  <span class="kd">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_type</span> <span class="o">||</span> <span class="s1">&#39;no type&#39;</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nx">type</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>用 <code>// FIXME:</code> 给问题注释,用 <code>// TODO:</code> 去注释待办</li>
+</ul>
+<h3 id="_14">分号</h3>
+<blockquote>
+<p>为什么？当 JavaScript 遇到没有分号结尾的一行，它会执行 <a href="https://tc39.github.io/ecma262/#sec-automatic-semicolon-insertion">自动插入分号</a> 这一规则来决定行末是否加分号。如果 JavaScript 在你的断行里错误的插入了分号，就会出现一些古怪的行为。显式配置代码检查去检查没有带分号的地方可以帮助你防止这种错误。</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad - raises exception</span>
+<span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="kd">const</span> <span class="nx">leia</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="p">[</span><span class="nx">luke</span><span class="p">,</span> <span class="nx">leia</span><span class="p">].</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">jedi</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">jedi</span><span class="p">.</span><span class="nx">father</span> <span class="o">=</span> <span class="s1">&#39;vader&#39;</span><span class="p">)</span>
+
+<span class="c1">// bad - raises exception</span>
+<span class="kd">const</span> <span class="nx">reaction</span> <span class="o">=</span> <span class="s2">&quot;No! That’s impossible!&quot;</span>
+<span class="p">(</span><span class="k">async</span> <span class="kd">function</span> <span class="nx">meanwhileOnTheFalcon</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// handle `leia`, `lando`, `chewie`, `r2`, `c3p0`</span>
+  <span class="c1">// ...</span>
+<span class="p">}())</span>
+
+<span class="c1">// bad - returns `undefined` instead of the value on the next line - always happens when `return` is on a line by itself because of ASI!</span>
+<span class="kd">function</span> <span class="nx">foo</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span>
+    <span class="s1">&#39;search your feelings, you know it to be foo&#39;</span>
+<span class="p">}</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="kd">const</span> <span class="nx">leia</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="p">[</span><span class="nx">luke</span><span class="p">,</span> <span class="nx">leia</span><span class="p">].</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">jedi</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">jedi</span><span class="p">.</span><span class="nx">father</span> <span class="o">=</span> <span class="s1">&#39;vader&#39;</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">reaction</span> <span class="o">=</span> <span class="s2">&quot;No! That’s impossible!&quot;</span><span class="p">;</span>
+<span class="p">(</span><span class="k">async</span> <span class="kd">function</span> <span class="nx">meanwhileOnTheFalcon</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// handle `leia`, `lando`, `chewie`, `r2`, `c3p0`</span>
+  <span class="c1">// ...</span>
+<span class="p">}());</span>
+
+<span class="c1">// good</span>
+<span class="kd">function</span> <span class="nx">foo</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="s1">&#39;search your feelings, you know it to be foo&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_15">命名规范</h3>
+<ul>
+<li><code>export default</code> 导出模块A，则这个文件名也叫 <code>A.*</code>， <code>import</code> 时候的参数也叫 <code>A</code> :</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// file 1 contents</span>
+<span class="kd">class</span> <span class="nx">CheckBox</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+<span class="k">export</span> <span class="k">default</span> <span class="nx">CheckBox</span><span class="p">;</span>
+
+<span class="c1">// file 2 contents</span>
+<span class="k">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">fortyTwo</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="mf">42</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="c1">// file 3 contents</span>
+<span class="k">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">insideDirectory</span><span class="p">()</span> <span class="p">{}</span>
+
+<span class="c1">// in some other file</span>
+<span class="c1">// bad</span>
+<span class="k">import</span> <span class="nx">CheckBox</span> <span class="kr">from</span> <span class="s1">&#39;./checkBox&#39;</span><span class="p">;</span> <span class="c1">// PascalCase import/export, camelCase filename</span>
+<span class="k">import</span> <span class="nx">FortyTwo</span> <span class="kr">from</span> <span class="s1">&#39;./FortyTwo&#39;</span><span class="p">;</span> <span class="c1">// PascalCase import/filename, camelCase export</span>
+<span class="k">import</span> <span class="nx">InsideDirectory</span> <span class="kr">from</span> <span class="s1">&#39;./InsideDirectory&#39;</span><span class="p">;</span> <span class="c1">// PascalCase import/filename, camelCase export</span>
+
+<span class="c1">// bad</span>
+<span class="k">import</span> <span class="nx">CheckBox</span> <span class="kr">from</span> <span class="s1">&#39;./check_box&#39;</span><span class="p">;</span> <span class="c1">// PascalCase import/export, snake_case filename</span>
+<span class="k">import</span> <span class="nx">forty_two</span> <span class="kr">from</span> <span class="s1">&#39;./forty_two&#39;</span><span class="p">;</span> <span class="c1">// snake_case import/filename, camelCase export</span>
+<span class="k">import</span> <span class="nx">inside_directory</span> <span class="kr">from</span> <span class="s1">&#39;./inside_directory&#39;</span><span class="p">;</span> <span class="c1">// snake_case import, camelCase export</span>
+<span class="k">import</span> <span class="nx">index</span> <span class="kr">from</span> <span class="s1">&#39;./inside_directory/index&#39;</span><span class="p">;</span> <span class="c1">// requiring the index file explicitly</span>
+<span class="k">import</span> <span class="nx">insideDirectory</span> <span class="kr">from</span> <span class="s1">&#39;./insideDirectory/index&#39;</span><span class="p">;</span> <span class="c1">// requiring the index file explicitly</span>
+
+<span class="c1">// good</span>
+<span class="k">import</span> <span class="nx">CheckBox</span> <span class="kr">from</span> <span class="s1">&#39;./CheckBox&#39;</span><span class="p">;</span> <span class="c1">// PascalCase export/import/filename</span>
+<span class="k">import</span> <span class="nx">fortyTwo</span> <span class="kr">from</span> <span class="s1">&#39;./fortyTwo&#39;</span><span class="p">;</span> <span class="c1">// camelCase export/import/filename</span>
+<span class="k">import</span> <span class="nx">insideDirectory</span> <span class="kr">from</span> <span class="s1">&#39;./insideDirectory&#39;</span><span class="p">;</span> <span class="c1">// camelCase export/import/directory name/implicit &quot;index&quot;</span>
+<span class="c1">// ^ supports both insideDirectory.js and insideDirectory/index.js</span>
+</code></pre></div>
+
+<ul>
+<li>当你<code>export default</code>一个函数时，函数名用小驼峰，文件名和函数名一致, export 一个结构体/类/单例/函数库/对象 时用大驼峰。</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">function</span> <span class="nx">makeStyleGuide</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">makeStyleGuide</span><span class="p">;</span>
+
+
+
+<span class="kd">const</span> <span class="nx">AirbnbStyleGuide</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">es6</span><span class="o">:</span> <span class="p">{</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="nx">AirbnbStyleGuide</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="_16">标准库</h3>
+<blockquote>
+<p><a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects">标准库</a>中包含一些由于历史原因遗留的工具类</p>
+</blockquote>
+<ul>
+<li>用 <code>Number.isNaN</code> 代替全局的 <code>isNaN</code>:</li>
+</ul>
+<p>```javascript
+  // bad
+  isNaN('1.2'); // false
+  isNaN('1.2.3'); // true</p>
+<p>// good
+  Number.isNaN('1.2.3'); // false
+  Number.isNaN(Number('1.2.3')); // true
+  ```</p>
+<ul>
+<li>用 <code>Number.isFinite</code> 代替 <code>isFinite</code></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="nb">isFinite</span><span class="p">(</span><span class="s1">&#39;2e3&#39;</span><span class="p">);</span> <span class="c1">// true</span>
+
+<span class="c1">// good</span>
+<span class="nb">Number</span><span class="p">.</span><span class="nb">isFinite</span><span class="p">(</span><span class="s1">&#39;2e3&#39;</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="nb">Number</span><span class="p">.</span><span class="nb">isFinite</span><span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="s1">&#39;2e3&#39;</span><span class="p">,</span> <span class="mf">10</span><span class="p">));</span> <span class="c1">// true</span>
+</code></pre></div>
+
+<h2 id="_17">类与函数</h2>
+<h3 id="_18">函数</h3>
+<ul>
+<li>使用命名函数表达式而不是函数声明</li>
+</ul>
+<blockquote>
+<p>为什么？这是因为函数声明会发生提升，这意味着在一个文件里函数很容易在其被定义之前就被引用了。这样伤害了代码可读性和可维护性。如果你发现一个函数又大又复杂，且这个函数妨碍了这个文件其他部分的理解性，你应当单独把这个函数提取成一个单独的模块。不管这个名字是不是由一个确定的变量推断出来的，别忘了给表达式清晰的命名（这在现代浏览器和类似 babel 编译器中很常见）。这消除了由匿名函数在错误调用栈产生的所有假设。 (<a href="https://github.com/airbnb/javascript/issues/794">讨论</a>)</p>
+</blockquote>
+<p>```javascript
+  // bad
+  function foo() {
+    // ...
+  }</p>
+<p>// bad
+  const foo = function () {
+    // ...
+  };</p>
+<p>// good
+  // lexical name distinguished from the variable-referenced invocation(s)
+  // 函数表达式名和声明的函数名是不一样的
+  const short = function longUniqueMoreDescriptiveLexicalFoo() {
+    // ...
+  };
+  ```</p>
+<ul>
+<li>把立即执行函数包裹在圆括号里:</li>
+</ul>
+<blockquote>
+<p>立即执行函数：Immediately Invoked Function expression = IIFE。 为什么？因为这样使代码读起来更清晰（译者注：我咋不觉得）。 另外，在模块化世界里，你几乎用不着 IIFE。</p>
+</blockquote>
+<p><code>javascript
+  // immediately-invoked function expression (IIFE)
+  ( ()=&gt; {
+    console.log('Welcome to the Internet. Please follow me.');
+  }() );</code></p>
+<ul>
+<li>不要用 <code>arguments</code> 命名参数。他的优先级高于每个函数作用域自带的 <code>arguments</code> 对象，这会导致函数自带的 <code>arguments</code> 值被覆盖:</li>
+</ul>
+<p>```javascript
+  // bad
+  function foo(name, options, arguments) {
+    // ...
+  }</p>
+<p>// good
+  function foo(name, options, args) {
+    // ...
+  }
+  ```</p>
+<ul>
+<li>用默认参数语法而不是在函数里对参数重新赋值</li>
+</ul>
+<p>```javascript
+  // really bad
+  function handleThings(opts) {
+    // 如果 opts 的值为 false, 它会被赋值为 {}
+    // 虽然你想这么写，但是这个会带来一些微妙的 bug。
+    opts = opts || {};
+    // ...
+  }</p>
+<p>// still bad
+  function handleThings(opts) {
+    if (opts === void 0) {
+      opts = {};
+    }
+    // ...
+  }</p>
+<p>// good
+  function handleThings(opts = {}) {
+    // ...
+  }
+  ```</p>
+<ul>
+<li>把默认参数赋值放在最后面</li>
+</ul>
+<p>```javascript
+  // bad
+  function handleThings(opts = {}, name) {
+    // ...
+  }</p>
+<p>// good
+  function handleThings(name, opts = {}) {
+    // ...
+  }
+  ```</p>
+<ul>
+<li>不要修改参数，也不要重新对函数参数赋值：</li>
+</ul>
+<blockquote>
+<p>容易导致bug，另外重新对参数赋值也会导致优化问题。</p>
+</blockquote>
+<p>```javascript
+  // bad
+  function f1(a) {
+    a = 1;
+    // ...
+  }</p>
+<p>function f2(a) {
+    if (!a) { a = 1; }
+    // ...
+  }</p>
+<p>// good
+  function f3(a) {
+    const b = a || 1;
+    // ...
+  }</p>
+<p>function f4(a = 1) {
+    // ...
+  }
+  ```</p>
+<h3 id="_19">箭头函数</h3>
+<ul>
+<li>当需要使用箭头函数的时候，使用它，但是不要滥用</li>
+</ul>
+<blockquote>
+<p>当函数逻辑复杂时，不推荐使用箭头函数，而是单独抽出来放在一个函数里。</p>
+</blockquote>
+<p>```javascript
+  // bad
+  [1, 2, 3].map(function (x) {
+    const y = x + 1;
+    return x * y;
+  });</p>
+<p>// good
+  [1, 2, 3].map((x) =&gt; {
+    const y = x + 1;
+    return x * y;
+  });
+  ```</p>
+<ul>
+<li>避免箭头函数与比较操作符混淆</li>
+</ul>
+<p>```javascript
+  // bad
+  const itemHeight = (item) =&gt; item.height &lt;= 256 ? item.largeSize : item.smallSize;</p>
+<p>// bad
+  const itemHeight = (item) =&gt; item.height &gt;= 256 ? item.largeSize : item.smallSize;</p>
+<p>// good
+  const itemHeight = (item) =&gt; (item.height &lt;= 256 ? item.largeSize : item.smallSize);</p>
+<p>// good
+  const itemHeight = (item) =&gt; {
+    const { height, largeSize, smallSize } = item;
+    return height &lt;= 256 ? largeSize : smallSize;
+  };
+  ```</p>
+<h3 id="_20">类与构造函数</h3>
+<ul>
+<li>使用<code>class</code> 语法。避免直接操作 <code>prototype</code></li>
+</ul>
+<p>```javascript
+  // bad
+  function Queue(contents = []) {
+    this.queue = [...contents];
+  }
+  Queue.prototype.pop = function () {
+    const value = this.queue[0];
+    this.queue.splice(0, 1);
+    return value;
+  };</p>
+<p>// good
+  class Queue {
+    constructor(contents = []) {
+      this.queue = [...contents];
+    }
+    pop() {
+      const value = this.queue[0];
+      this.queue.splice(0, 1);
+      return value;
+    }
+  }</p>
+<ul>
+<li>用 <code>extends</code> 实现继承:</li>
+</ul>
+<blockquote>
+<p>为什么？它是一种内置的方法来继承原型功能而不破坏 <code>instanceof</code></p>
+</blockquote>
+<p>```javascript
+  // bad
+  const inherits = require('inherits');
+  function PeekableQueue(contents) {
+    Queue.apply(this, contents);
+  }
+  inherits(PeekableQueue, Queue);
+  PeekableQueue.prototype.peek = function () {
+    return this.queue[0];
+  }</p>
+<p>// good
+  class PeekableQueue extends Queue {
+    peek() {
+      return this.queue[0];
+    }
+  }
+  ```</p>
+<ul>
+<li>方法可以返回 <code>this</code> 来实现链式调用</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="nx">Jedi</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">jump</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">jumping</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="nx">Jedi</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">setHeight</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">height</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Jedi</span><span class="p">();</span>
+<span class="nx">luke</span><span class="p">.</span><span class="nx">jump</span><span class="p">();</span> <span class="c1">// =&gt; true</span>
+<span class="nx">luke</span><span class="p">.</span><span class="nx">setHeight</span><span class="p">(</span><span class="mf">20</span><span class="p">);</span> <span class="c1">// =&gt; undefined</span>
+
+<span class="c1">// good</span>
+<span class="kd">class</span> <span class="nx">Jedi</span> <span class="p">{</span>
+  <span class="nx">jump</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">jumping</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">setHeight</span><span class="p">(</span><span class="nx">height</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">height</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">luke</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Jedi</span><span class="p">();</span>
+
+<span class="nx">luke</span><span class="p">.</span><span class="nx">jump</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">setHeight</span><span class="p">(</span><span class="mf">20</span><span class="p">);</span>
+</code></pre></div>
+
+<ul>
+<li>自定义 <code>toString()</code> 方法是可以的，但需要保证它可以正常工作</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span> <span class="nx">Jedi</span> <span class="p">{</span>
+  <span class="kr">constructor</span><span class="p">(</span><span class="nx">options</span> <span class="o">=</span> <span class="p">{})</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">name</span> <span class="o">||</span> <span class="s1">&#39;no name&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">getName</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">toString</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="sb">`Jedi - </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">getName</span><span class="p">()</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>如果没有特别定义，类有默认的构造方法。一个空的构造函数或只是代表父类的构造函数是不需要写的。</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">class</span> <span class="nx">Jedi</span> <span class="p">{</span>
+  <span class="kr">constructor</span><span class="p">()</span> <span class="p">{}</span>
+
+  <span class="nx">getName</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// bad</span>
+<span class="kd">class</span> <span class="nx">Rey</span> <span class="k">extends</span> <span class="nx">Jedi</span> <span class="p">{</span>
+  <span class="c1">// 这种构造函数是不需要写的</span>
+  <span class="kr">constructor</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// good</span>
+<span class="kd">class</span> <span class="nx">Rey</span> <span class="k">extends</span> <span class="nx">Jedi</span> <span class="p">{</span>
+  <span class="kr">constructor</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;Rey&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_21">模块</h3>
+<ul>
+<li>使用（<code>import</code>/<code>export</code>）模块</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">AirbnbStyleGuide</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./AirbnbStyleGuide&#39;</span><span class="p">);</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">AirbnbStyleGuide</span><span class="p">.</span><span class="nx">es6</span><span class="p">;</span>
+
+<span class="c1">// ok</span>
+<span class="k">import</span> <span class="nx">AirbnbStyleGuide</span> <span class="kr">from</span> <span class="s1">&#39;./AirbnbStyleGuide&#39;</span><span class="p">;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="nx">AirbnbStyleGuide</span><span class="p">.</span><span class="nx">es6</span><span class="p">;</span>
+
+<span class="c1">// best</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">es6</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./AirbnbStyleGuide&#39;</span><span class="p">;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="nx">es6</span><span class="p">;</span>
+</code></pre></div>
+
+<ul>
+<li>不要导出可变的东西:</li>
+</ul>
+<blockquote>
+<p>变化通常都是需要避免，特别是当你要输出可变的绑定。虽然在某些场景下可能需要这种技术，但总的来说应该导出常量。</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">let</span> <span class="nx">foo</span> <span class="o">=</span> <span class="mf">3</span><span class="p">;</span>
+<span class="k">export</span> <span class="p">{</span> <span class="nx">foo</span> <span class="p">}</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">foo</span> <span class="o">=</span> <span class="mf">3</span><span class="p">;</span>
+<span class="k">export</span> <span class="p">{</span> <span class="nx">foo</span> <span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>import JavaScript文件不用包含扩展名</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="k">import</span> <span class="nx">foo</span> <span class="kr">from</span> <span class="s1">&#39;./foo.js&#39;</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">bar</span> <span class="kr">from</span> <span class="s1">&#39;./bar.jsx&#39;</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">baz</span> <span class="kr">from</span> <span class="s1">&#39;./baz/index.jsx&#39;</span><span class="p">;</span>
+
+<span class="c1">// good</span>
+<span class="k">import</span> <span class="nx">foo</span> <span class="kr">from</span> <span class="s1">&#39;./foo&#39;</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">bar</span> <span class="kr">from</span> <span class="s1">&#39;./bar&#39;</span><span class="p">;</span>
+<span class="k">import</span> <span class="nx">baz</span> <span class="kr">from</span> <span class="s1">&#39;./baz&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="_22">迭代器与生成器</h3>
+<ul>
+<li>不要用迭代器。使用 JavaScript 高级函数代替 <code>for-in</code>、 <code>for-of</code></li>
+</ul>
+<blockquote>
+<p>用数组的这些迭代方法： <code>map()</code> / <code>every()</code> / <code>filter()</code> / <code>find()</code> / <code>findIndex()</code> / <code>reduce()</code> / <code>some()</code> / ... , 对象的这些方法 <code>Object.keys()</code> / <code>Object.values()</code> / <code>Object.entries()</code> 得到一个数组，就能去遍历对象。</p>
+</blockquote>
+<p>```javascript
+  const numbers = [1, 2, 3, 4, 5];</p>
+<p>// bad
+  let sum = 0;
+  for (let num of numbers) {
+    sum += num;
+  }
+  sum === 15;</p>
+<p>// good
+  let sum = 0;
+  numbers.forEach((num) =&gt; sum += num);
+  sum === 15;</p>
+<p>// best (use the functional force)
+  const sum = numbers.reduce((total, num) =&gt; total + num, 0);
+  sum === 15;</p>
+<p>// bad
+  const increasedByOne = [];
+  for (let i = 0; i &lt; numbers.length; i++) {
+    increasedByOne.push(numbers[i] + 1);
+  }</p>
+<div class="codehilite"><pre><span></span><code>  // good
+</code></pre></div>
+
+<p>const increasedByOne = [];
+  numbers.forEach((num) =&gt; {
+    increasedByOne.push(num + 1);
+  });</p>
+<p>// best (keeping it functional)
+  const increasedByOne = numbers.map((num) =&gt; num + 1);
+  ```</p>
+<h3 id="_23">提升</h3>
+<ul>
+<li><code>var</code> 声明会被提前到离他最近的作用域的最前面，但是它的赋值语句并没有提前。<code>const</code> 和 <code>let</code> 被赋予了新的概念 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz">暂时性死区 (TDZ)</a>。 重要的是要知道为什么 <a href="https://web.archive.org/web/20200121061528/http://es-discourse.com/t/why-typeof-is-no-longer-safe/15">typeof 不再安全</a>。</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 我们知道这个不会工作，假设没有定义全局的 notDefined</span>
+<span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">notDefined</span><span class="p">);</span> <span class="c1">// =&gt; throws a ReferenceError</span>
+<span class="p">}</span>
+
+<span class="c1">// 在你引用的地方之后声明一个变量，他会正常输出是因为变量提升。</span>
+<span class="c1">// 注意： declaredButNotAssigned 的值 true 没有被提升。</span>
+<span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">declaredButNotAssigned</span><span class="p">);</span> <span class="c1">// =&gt; undefined</span>
+  <span class="kd">var</span> <span class="nx">declaredButNotAssigned</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 可以写成如下例子， 二者意义相同。</span>
+<span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">declaredButNotAssigned</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">declaredButNotAssigned</span><span class="p">);</span> <span class="c1">// =&gt; undefined</span>
+  <span class="nx">declaredButNotAssigned</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 用 const，let就不一样了。</span>
+<span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">declaredButNotAssigned</span><span class="p">);</span> <span class="c1">// =&gt; throws a ReferenceError</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="ow">typeof</span> <span class="nx">declaredButNotAssigned</span><span class="p">);</span> <span class="c1">// =&gt; throws a ReferenceError</span>
+  <span class="kd">const</span> <span class="nx">declaredButNotAssigned</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>已命名函数表达式提升他的变量名，不是函数名或函数体</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">named</span><span class="p">);</span> <span class="c1">// =&gt; undefined</span>
+
+  <span class="nx">named</span><span class="p">();</span> <span class="c1">// =&gt; TypeError named is not a function</span>
+
+  <span class="nx">superPower</span><span class="p">();</span> <span class="c1">// =&gt; ReferenceError superPower is not defined</span>
+
+  <span class="kd">var</span> <span class="nx">named</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">superPower</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Flying&#39;</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="c1">// 函数名和变量名一样是也如此。</span>
+<span class="kd">function</span> <span class="nx">example</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">named</span><span class="p">);</span> <span class="c1">// =&gt; undefined</span>
+
+  <span class="nx">named</span><span class="p">();</span> <span class="c1">// =&gt; TypeError named is not a function</span>
+
+  <span class="kd">var</span> <span class="nx">named</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">named</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;named&#39;</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_24">比较运算符与相等</h3>
+<ul>
+<li>
+<p>用 <code>===</code> 和 <code>!==</code> 严格比较而不是 <code>==</code> 和 <code>!=</code></p>
+</li>
+<li>
+<p>条件语句，例如if语句使用coercion与tobooleant抽象方法评估它们的表达式，始终遵循这些简单的规则：</p>
+</li>
+<li><strong>Objects</strong> evaluate to <strong>true</strong></li>
+<li><strong>Undefined</strong> evaluates to <strong>false</strong></li>
+<li><strong>Null</strong> evaluates to <strong>false</strong></li>
+<li><strong>Booleans</strong> evaluate to <strong>the value of the boolean</strong></li>
+<li><strong>Numbers</strong> evaluate to <strong>false</strong> if <strong>+0, -0, or NaN</strong>, otherwise <strong>true</strong></li>
+<li><strong>Strings</strong> evaluate to <strong>false</strong> if an empty string <code>''</code>, otherwise <strong>true</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="p">([</span><span class="mf">0</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[])</span> <span class="p">{</span>
+  <span class="c1">// true</span>
+  <span class="c1">// an array (even an empty one) is an object, objects will evaluate to true</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>三元表达式不应该嵌套，尽量保持单行表达式</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">maybe1</span> <span class="o">&gt;</span> <span class="nx">maybe2</span>
+  <span class="o">?</span> <span class="s2">&quot;bar&quot;</span>
+  <span class="o">:</span> <span class="nx">value1</span> <span class="o">&gt;</span> <span class="nx">value2</span> <span class="o">?</span> <span class="s2">&quot;baz&quot;</span> <span class="o">:</span> <span class="kc">null</span><span class="p">;</span>
+
+<span class="c1">// better</span>
+<span class="kd">const</span> <span class="nx">maybeNull</span> <span class="o">=</span> <span class="nx">value1</span> <span class="o">&gt;</span> <span class="nx">value2</span> <span class="o">?</span> <span class="s1">&#39;baz&#39;</span> <span class="o">:</span> <span class="kc">null</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">maybe1</span> <span class="o">&gt;</span> <span class="nx">maybe2</span>
+<span class="o">?</span> <span class="s1">&#39;bar&#39;</span>
+  <span class="o">:</span> <span class="nx">maybeNull</span><span class="p">;</span>
+
+<span class="c1">// best</span>
+<span class="kd">const</span> <span class="nx">maybeNull</span> <span class="o">=</span> <span class="nx">value1</span> <span class="o">&gt;</span> <span class="nx">value2</span> <span class="o">?</span> <span class="s1">&#39;baz&#39;</span> <span class="o">:</span> <span class="kc">null</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">maybe1</span> <span class="o">&gt;</span> <span class="nx">maybe2</span> <span class="o">?</span> <span class="s1">&#39;bar&#39;</span> <span class="o">:</span> <span class="nx">maybeNull</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="_25">事件</h3>
+<ul>
+<li>当把数据载荷传递给事件时（例如是 DOM 还是像 Backbone 这样有很多属性的事件）。这使得后续的贡献者（程序员）向这个事件添加更多的数据时不用去找或者更新每个处理器。</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// bad</span>
+<span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">&#39;listingUpdated&#39;</span><span class="p">,</span> <span class="nx">listing</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+
+<span class="c1">// ...</span>
+
+<span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;listingUpdated&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">listingID</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// do something with listingID</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="_26">类型转换与强制转换</h3>
+<ul>
+<li>字符串</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// =&gt; this.reviewScore = 9;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">totalScore</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">String</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reviewScore</span><span class="p">);</span> <span class="c1">// typeof totalScore is &quot;object&quot; not &quot;string&quot;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">totalScore</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">reviewScore</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="p">;</span> 
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">totalScore</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">reviewScore</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span> <span class="c1">// 不保证返回 string</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">totalScore</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reviewScore</span><span class="p">);</span>
+</code></pre></div>
+
+<ul>
+<li>数字: 用 <code>Number</code> 做类型转换，<code>parseInt</code> 转换 <code>string</code> 应总是带上进制位</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span> <span class="nx">inputValue</span> <span class="o">=</span> <span class="s1">&#39;4&#39;</span><span class="p">;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="ow">new</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">inputValue</span><span class="p">);</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="o">+</span><span class="nx">inputValue</span><span class="p">;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">inputValue</span> <span class="o">&gt;&gt;</span> <span class="mf">0</span><span class="p">;</span>
+
+<span class="c1">// bad</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">inputValue</span><span class="p">);</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">inputValue</span><span class="p">);</span>
+
+<span class="c1">// good</span>
+<span class="kd">const</span> <span class="nx">val</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">inputValue</span><span class="p">,</span> <span class="mf">10</span><span class="p">);</span>
+</code></pre></div>
+
+<ul>
+<li>移位运算要小心</li>
+</ul>
+<blockquote>
+<p>移位运算对大于 32 位的整数会导致意外行为。<a href="https://github.com/airbnb/javascript/issues/109">Discussion</a>. 最大的 32 位整数是 2,147,483,647:</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="mf">2147483647</span> <span class="o">&gt;&gt;</span> <span class="mf">0</span> <span class="c1">//=&gt; 2147483647</span>
+<span class="mf">2147483648</span> <span class="o">&gt;&gt;</span> <span class="mf">0</span> <span class="c1">//=&gt; -2147483648</span>
+<span class="mf">2147483649</span> <span class="o">&gt;&gt;</span> <span class="mf">0</span> <span class="c1">//=&gt; -2147483647</span>
+</code></pre></div>
+
+<h2 id="_27">推荐资源</h2>
+<ul>
+<li>网站：</li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/">MDN</a>: 不管你是仅仅开始入门、学过一点基础或者是个网站开发老手，你都能在这里找到有用的资源。</li>
+<li><a href="https://javascriptweekly.com/">JS周刊</a> : 你可以在这里，接收到JS社区里最新的动态，其他开发者编写的优秀工具，阅读优秀的文章。</li>
+<li>
+<p><a href="https://docschina.org/">印记中文</a> : JS及其前端领域的文档集合。</p>
+</li>
+<li>
+<p>书籍(为了尊重作者的版权，下列书籍仅开源书籍提供链接)：</p>
+</li>
+<li>JavaScript权威指南（原书第7版）</li>
+<li><a href="https://github.com/getify/You-Dont-Know-JS">你不知道的JS</a></li>
+<li><a href="https://eloquentjavascript.net/">Eloquent JavaScript</a></li>
+</ul>
+    </body>
+    </html>
+    

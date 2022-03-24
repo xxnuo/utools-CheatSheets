@@ -1,0 +1,227 @@
+
+    <html lang="zh-cn">
+    <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <link href="../css/dark.css" rel="stylesheet">
+    </head>
+    <body>
+    <h1 id="vimscript">VimScript 速查表</h1>
+<p>译注：折腾 Vim 当然要能看懂和改写相关脚本，而中文资料匮乏，缺一个提纲挈领的教程。本文翻译自 Andrew Scala 的 《<a href="http://andrewscala.com/vimscript/">Five Minute Vimscript</a>》，立足于让你用最短的时间掌握 VimScript 的基础和要点，你可以把它看成一份语言速查表。</p>
+<p>Vim有着丰富的内建文档系统，使用 <code>:h &lt;关键词&gt;</code> 就可以阅读，如果你想在方便的尝试各种 vimscript ，你可以通过 NORMAL 模式下使用 <code>gQ</code> 命令进入 VimScript 的交互式环境调试命令。</p>
+<p>注意：下面的例子中会包含一些形如 <code>&lt;符号&gt;</code> 的符号，意味着正式使用时应该被完全替换成真实的东西，包括左右两边的尖括号。而单独的 <code>&lt;</code> 和 <code>&gt;</code> 在 VimScript 中被用作比较符号。</p>
+<h2 id="_1">变量</h2>
+<ul>
+<li><code>let</code> 命令用来对变量进行初始化或者赋值。</li>
+<li><code>unlet</code> 命令用来删除一个变量。</li>
+<li><code>unlet!</code> 命令同样可以用来删除变量，但是会忽略诸如变量不存在的错误提示。</li>
+</ul>
+<p>默认情况下，如果一个变量在函数体以外初始化的，那么它的作用域是全局变量；而如果它是在函数体以内初始化的，那它的作用于是局部变量。同时你可以通过变量名称前加冒号前缀明确的指明变量的作用域：</p>
+<div class="codehilite"><pre><span></span><code>g:var - 全局
+a:var - 函数参数
+l:var - 函数局部变量
+b:var - buffer 局部变量
+w:var - window 局部变量
+t:var - tab 局部变量
+s:var - 当前脚本内可见的局部变量
+v:var - Vim 预定义的内部变量
+</code></pre></div>
+
+<p>你可以通过 $name 的模式读取或者改写环境变量，同时可以用 &amp;option 的方式来读写 vim 内部的设置值。</p>
+<h2 id="_2">数据类型</h2>
+<p><strong>Number</strong>：32 位有符号整数</p>
+<div class="codehilite"><pre><span></span><code>-123
+0x10
+0177
+</code></pre></div>
+
+<p><strong>Float</strong>: 浮点数，需要编译 Vim 的时候，有 <code>+float</code> 特性支持</p>
+<div class="codehilite"><pre><span></span><code><span class="mf">123.456</span><span class="w"></span>
+<span class="mf">1.15e-6</span><span class="w"></span>
+<span class="o">-</span><span class="mf">1.1e3</span><span class="w"></span>
+</code></pre></div>
+
+<p><strong>String</strong>: NULL 结尾的 8位无符号字符串</p>
+<div class="codehilite"><pre><span></span><code>&quot;ab\txx\&quot;--&quot;
+&#39;x-z&#39;&#39;a,c&#39;
+</code></pre></div>
+
+<p><strong>Funcref</strong>: 函数引用，函数引用类型的变量名必须以大写字母开头</p>
+<div class="codehilite"><pre><span></span><code><span class="p">:</span><span class="n">let</span><span class="w"> </span><span class="n">Myfunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">function</span><span class="p">(</span><span class="s2">&quot;strlen&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="n">echo</span><span class="w"> </span><span class="n">Myfunc</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot; Call strlen on &#39;foobar&#39;.</span>
+<span class="mi">6</span><span class="w"></span>
+</code></pre></div>
+
+<p><strong>List</strong>: 有序列表</p>
+<div class="codehilite"><pre><span></span><code>:let mylist = [1, 2, [&#39;a&#39;, &#39;b&#39;]]
+:echo mylist[0]
+1
+:echo mylist[2][0]
+a
+:echo mylist[-2]
+2
+:echo mylist[999]
+E684: list index out of range: 999
+:echo get(mylist, 999, &quot;THERE IS NO 1000th ELEMENT&quot;)
+THERE IS NO 1000th ELEMENT
+</code></pre></div>
+
+<p><strong>Dictionary</strong>: 无序的 Key/Value 容器</p>
+<div class="codehilite"><pre><span></span><code>:let mydict = {&#39;blue&#39;: &quot;#0000ff&quot;, &#39;foo&#39;: {999: &quot;baz&quot;}}
+:echo mydict[&quot;blue&quot;]
+#0000ff
+:echo mydict.foo
+{999: &quot;baz&quot;}
+:echo mydict.foo.999
+baz
+:let mydict.blue = &quot;BLUE&quot;
+:echo mydict.blue
+BLUE
+</code></pre></div>
+
+<p>没有布尔类型，整数 0 被当作假，其他被当作真。字符串在比较真假前会被转换成整数，大部分字符串都会被转化为 0，除非以非零开头的字符串才会转化成非零。</p>
+<p>（译注：可以调用 type(varname) 来取得变量的类型，最新版 Vim 8.1 中已经包含 Boolean 类型，并且有 v:true, v:false  两个值）</p>
+<p>VimScript 的变量属于动态弱类型。</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">:echo</span> <span class="mi">1</span> . <span class="s2">&quot;</span><span class="s">foo</span><span class="s2">&quot;</span>
+<span class="mi">1</span><span class="nv">foo</span>
+<span class="nl">:echo</span> <span class="mi">1</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">1</span><span class="s2">&quot;</span>
+<span class="mi">2</span>
+
+<span class="nl">:function</span><span class="o">!</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span>
+:   <span class="k">return</span> <span class="nv">a</span>:<span class="nv">arg</span>? <span class="s2">&quot;</span><span class="s">true</span><span class="s2">&quot;</span> : <span class="s2">&quot;</span><span class="s">false</span><span class="s2">&quot;</span>
+<span class="nl">:endfunction</span>
+
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">foobar</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="nv">false</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">1000</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="nv">true</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">x1000</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="nv">false</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">1000x</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="nv">true</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">0</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="nv">false</span>
+</code></pre></div>
+
+<h2 id="_3">字符串比较</h2>
+<ul>
+<li><code>&lt;string&gt;</code> == <code>&lt;string&gt;</code>: 字符串相等</li>
+<li><code>&lt;string&gt;</code> != <code>&lt;string&gt;</code>: 字符串不等</li>
+<li><code>&lt;string&gt;</code> =~ <code>&lt;pattern&gt;</code>: 匹配 pattern</li>
+<li><code>&lt;string&gt;</code> !~ <code>&lt;pattern&gt;</code>: 不匹配 pattern</li>
+<li><code>&lt;operator&gt;#</code>: 匹配大小写</li>
+<li><code>&lt;operator&gt;?</code>: 不匹配大小写</li>
+</ul>
+<p>注意：设置选项 <code>ignorecase</code> 会影响 == 和 != 的默认比较结果，可以在比较符号添加 ? 或者 # 来明确指定大小写是否忽略。</p>
+<p><code>&lt;string&gt;</code> . <code>&lt;string&gt;</code>: 字符串链接</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">:function</span><span class="o">!</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="nv">arg</span><span class="ss">)</span>
+:   <span class="k">return</span> <span class="nv">a</span>:<span class="nv">arg</span>? <span class="s2">&quot;</span><span class="s">true</span><span class="s2">&quot;</span> : <span class="s2">&quot;</span><span class="s">false</span><span class="s2">&quot;</span>
+<span class="nl">:endfunction</span>
+
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X start</span><span class="s2">&quot;</span> <span class="o">=~</span> <span class="s1">&#39;</span><span class="s">X$</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="nv">false</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">end X</span><span class="s2">&quot;</span> <span class="o">=~</span> <span class="s1">&#39;</span><span class="s">X$</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="nv">true</span>
+<span class="nl">:echo</span> <span class="nv">TrueFalse</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">end x</span><span class="s2">&quot;</span> <span class="o">=~</span># <span class="s1">&#39;</span><span class="s">X$</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="nv">false</span>
+</code></pre></div>
+
+<h2 id="if-for-while-and-trycatch">If, For, While, and Try/Catch</h2>
+<p>条件判断：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="o">&lt;</span><span class="nv">expression</span><span class="o">&gt;</span>
+    ...
+<span class="k">elseif</span> <span class="o">&lt;</span><span class="nv">expression</span><span class="o">&gt;</span>
+    ...
+<span class="k">else</span>
+    ...
+<span class="k">endif</span>
+</code></pre></div>
+
+<p>循环：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="o">&lt;</span><span class="k">var</span><span class="o">&gt;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">&lt;</span><span class="n">list</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="k">continue</span><span class="w"></span>
+<span class="w">    </span><span class="k">break</span><span class="w"></span>
+<span class="n">endfor</span><span class="w"></span>
+</code></pre></div>
+
+<p>复杂循环：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">[</span><span class="n">var1</span><span class="p">,</span><span class="w"> </span><span class="n">var2</span><span class="p">]</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">]]</span><span class="w"></span>
+<span class="w">    </span><span class="s2">&quot; on 1st loop, var1 = 1 and var2 = 2</span>
+<span class="w">    </span><span class="s2">&quot; on 2nd loop, var1 = 3 and var2 = 4</span>
+<span class="n">endfor</span><span class="w"></span>
+</code></pre></div>
+
+<p>While 循环：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">while</span> <span class="o">&lt;</span><span class="nv">expression</span><span class="o">&gt;</span>
+<span class="k">endwhile</span>
+</code></pre></div>
+
+<p>异常捕获：</p>
+<div class="codehilite"><pre><span></span><code>try
+    ...
+catch &lt;pattern (optional)&gt;
+    &quot; HIGHLY recommended to catch specific error.
+finally
+    ...
+endtry
+</code></pre></div>
+
+<h2 id="_4">函数</h2>
+<p>使用 <code>function</code> 关键字定义一个函数，使用 <code>function!</code> 覆盖一个函数的定义，函数和变量一样也有作用范围的约束。需要注意函数名必须以大写字母开头。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">function</span><span class="nf">! &lt;Name&gt;</span><span class="p">(</span>arg1, arg2, etc<span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="o">&lt;</span><span class="k">function</span><span class="w"> </span><span class="n">body</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">endfunction</span><span class="w"></span>
+</code></pre></div>
+
+<p><code>delfunction &lt;function&gt;</code> 删除一个函数</p>
+<p><code>call &lt;function&gt;</code> 调用一个函数，函数调用前的 call 语句是必须的，除非在一个表达式里。</p>
+<p>例如：强制创建一个全局函数（使用感叹号），参数使用 <code>...</code> 这种不定长的参数形式时，a:1 表示 <code>...</code> 部分的第一个参数，a:2 表示第二个，如此类推，a:0 用来表示 <code>...</code> 部分一共有多少个参数。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">function</span><span class="nf">! g:Foobar</span><span class="p">(</span>arg1, arg2, ...<span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">let</span><span class="w"> </span><span class="n">first_argument</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="n">arg1</span><span class="w"></span>
+<span class="w">    </span><span class="n">let</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">    </span><span class="n">let</span><span class="w"> </span><span class="n">variable_arg_1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">a</span><span class="p">:{</span><span class="n">index</span><span class="p">}</span><span class="w"> </span>&quot;<span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="mi">1</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">variable_arg_1</span><span class="w"></span>
+<span class="n">endfunction</span><span class="w"></span>
+</code></pre></div>
+
+<p>有一种特殊的调用函数的方式，可以指明该函数作用的文本区域是从当前缓冲区的第几行到第几行，按照 <code>1,3call Foobar()</code> 的格式调用一个函数的话，该函数会在当前文件的第一行到第三行每一行执行一遍，再这个例子中，该函数总共被执行了三次。</p>
+<p>如果你在函数声明的参数列表后添加一个 <code>range</code> 关键字，那函数就只会被调用一次，这时两个名为 <code>a:firstline</code> 和 <code>a:lastline</code> 的特殊变量可以用在该函数内部使用。</p>
+<p>例如：强制创建一个名为 <code>RangeSize</code> 的函数，用来显示被调用时候的文本范围：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">function</span><span class="nf">! b:RangeSize</span><span class="p">()</span><span class="w"> </span><span class="n">range</span><span class="w"></span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="n">lastline</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="n">firstline</span><span class="w"></span>
+<span class="n">endfunction</span><span class="w"></span>
+</code></pre></div>
+
+<h2 id="_5">面向对象</h2>
+<p>Vim 没有原生的类的支持，但是你可以用字典模拟基本的类。为了定义一个类的方法，可以在函数声明时使用 <code>dict</code> 关键字来将内部字典暴露为 <code>self</code> 关键字：</p>
+<div class="codehilite"><pre><span></span><code>let MyClass = {&quot;foo&quot;: &quot;Foo&quot;}
+function MyClass.printFoo() dict
+    echo self.foo
+endfunction
+</code></pre></div>
+
+<p>类的实现更类似于 singleton，为了在 VimScript 中创建类的实例，我们对字典使用 <code>deepcopy()</code> 方法进行拷贝：</p>
+<div class="codehilite"><pre><span></span><code>:let myinstance = deepcopy(MyClass)
+:call myinstance.printFoo()
+Foo
+:let myinstance.foo = &quot;Bar&quot;
+:call myinstance.printFoo()
+Bar
+</code></pre></div>
+
+<h2 id="_6">接下来做什么？</h2>
+<p>现在既然你已经知道了大致原理，下面给你推荐一些好的资源</p>
+<p>教程:</p>
+<ul>
+<li><a href="http://vimcdoc.sourceforge.net/doc/usr_41.html">Vim 中文帮助文档（usr_41） - 编写 Vim 脚本和 API 列表</a></li>
+<li><a href="https://github.com/lymslive/vimllearn">Vim 脚本指北</a></li>
+<li><a href="https://github.com/vim-china/vim-script-style-guide">Vim 脚本开发规范</a></li>
+</ul>
+<p>其他:</p>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/vimrc">知乎：Vim 专栏</a></li>
+</ul>
+<h2 id="_7">感谢</h2>
+<p>希望你觉得本文对你有用，感谢阅读。</p>
+    </body>
+    </html>
+    

@@ -1,0 +1,6 @@
+Markdown==3.3.6
+Pygments
+
+# dev tools
+black==22.1.0
+rich==12.0.1
